@@ -3,8 +3,10 @@
 net367: host.o utilities.o link.o man.o main.o net.o
 	gcc -o net367 host.o utilities.o link.o man.o main.o net.o
 
-queue:  host.o utilities.o link.o man.o main.o net.o testqueue.o
-	gcc -o testqueue utilities.o testqueue.o
+testqueue:  host.o utilities.o link.o man.o main.o net.o queue.o testqueue.o
+	gcc -o testqueue utilities.o queue.o testqueue.o
+
+testqueue.o: queue.h
 
 main.o: main.c
 	gcc -c main.c
@@ -24,4 +26,8 @@ utilities.o: utilities.c
 link.o:  link.c
 	gcc -c link.c
 
+clean:
+	rm -f *.o
 
+real_clean: clean
+	rm -f testqueue

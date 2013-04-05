@@ -405,7 +405,7 @@ fclose(fp);
  */
 void hostClearRcvFlg(hostState * hstate, char replymsg[])
 {
-hstate->rcvflag = 0;
+//hstate->rcvflag = 0;
 hstate->rcvPacketBuff.valid = 0;
 hstate->rcvPacketBuff.new = 0;
 
