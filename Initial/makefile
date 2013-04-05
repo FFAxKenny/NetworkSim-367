@@ -3,6 +3,9 @@
 net367: host.o utilities.o link.o man.o main.o net.o
 	gcc -o net367 host.o utilities.o link.o man.o main.o net.o
 
+queue:  host.o utilities.o link.o man.o main.o net.o testqueue.o
+	gcc -o testqueue utilities.o testqueue.o
+
 main.o: main.c
 	gcc -c main.c
 
