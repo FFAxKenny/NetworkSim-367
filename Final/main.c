@@ -36,7 +36,7 @@ void main()
 	system("clear");	
 
 	// Get Filename
-        printf("Enter Topology ("Star" or "Tree"): ");
+        printf("Enter Topology ('Star' or 'Tree'): ");
         scanf("%s",filename);
 
 	FILE *file = fopen(filename,"r");
