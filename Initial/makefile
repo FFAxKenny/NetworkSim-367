@@ -1,7 +1,7 @@
 # Make file
 
-net367: host.o utilities.o link.o man.o main.o net.o
-	gcc -o net367 host.o utilities.o link.o man.o main.o net.o
+net367: host.o utilities.o link.o man.o main.o net.o queue.o
+	gcc -o net367 host.o utilities.o link.o man.o main.o net.o queue.o
 
 testqueue:  host.o utilities.o link.o man.o main.o net.o queue.o testqueue.o
 	gcc -o testqueue utilities.o queue.o testqueue.o
@@ -22,6 +22,9 @@ net.o:  net.c
 
 utilities.o: utilities.c
 	gcc -c utilities.c
+
+queue.o: queue.h
+	gcc -c queue.c
 
 link.o:  link.c
 	gcc -c link.c

@@ -12,7 +12,6 @@ void switchInit(switchState * sstate, int physid)
 	sstate->netaddr = physid;
 	sstate->rcvPacketBuff.valid = 0;                        
         sstate->rcvPacketBuff.new = 0;                          
-	LIST_HEAD(listhead, entry) head;
 }
 
 

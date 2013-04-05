@@ -13,6 +13,7 @@
 #include "man.h"
 #include "host.h"
 #include "net.h"
+#include "queue.h"
 
 #define EMPTY_ADDR  0xffff  /* Indicates that the empty address */
                              /* It also indicates that the broadcast address */
@@ -23,6 +24,7 @@
 void main()
 {
 hostState hstate;             /* The host's state */
+switchState sstate;		/* The switch's state */
 linkArrayType linkArray;
 manLinkArrayType manLinkArray;
 
@@ -58,6 +60,8 @@ for (physid = 0; physid < NUMHOSTS; physid++) {
       return;
    }
    else if (pid == 0) { /* The child process -- a host node */
+
+      switchInit(&sstate, physid+NUMHOSTS);
 
       hostInit(&hstate, physid);              /* Initialize host's state */
 

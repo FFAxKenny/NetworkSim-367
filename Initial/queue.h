@@ -1,9 +1,12 @@
 #include <sys/queue.h>
 #include "main.h"
 #include "utilities.h"
-#define NUMHOSTS 5
+#include "man.h"
 
-//LIST_HEAD(listhead, entry) head;
+#ifndef QUEUE_H
+#define QUEUE_H
+
+LIST_HEAD(listhead, entry) head;
 
 struct entry {
 	packetBuffer pbuff;
@@ -60,3 +63,4 @@ packetBuffer pop();
 void switchMain(switchState * sstate, switchLinkArrayType * switchLinkArray);
 void switchInit(switchState * sstate, int physid);
 
+#endif

@@ -1,0 +1,9 @@
+/*	Authors:
+	Christian Bilgera
+	Kenny Luoung
+	Justin Wright
+				*/
+
+Compile Instructions:
+Type the command "make net367". The user is prompted
+to choose one of the two topologies (Star or Tree).
