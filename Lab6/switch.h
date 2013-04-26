@@ -28,14 +28,25 @@ typedef struct {
 typedef struct {
 	int   physid;
 	int   netaddr;             	/* host's network address */
-	int   nbraddr;             	/* network address of neighbor */
+	int   root;
+	int   distance;
+	int   parent;
+	nbraddr nbraddr[NUMSWITCH];	/* network address of neighbor */
 	LinkInfo linkin;        /* Incoming communication links */
 	LinkInfo linkout;       /* Outgoing communication links */
 	packetBuffer sendPacketBuff;    /* send packet buffer */
 	packetBuffer rcvPacketBuff;
 
+	packetBuffer sendSwitchInfo;
+	packetBuffer rcvSwitchInfo;
+
 	PacketQ packetqueue;
 	} switchState;
+
+typedef struct {
+	bool child;
+	bool datalink;
+	} nbraddr;
 
 void switchMain(switchState * sstate,linkArrayType * linkArray, char * filename);
 void switchInit(switchState * sstate,int physid);

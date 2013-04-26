@@ -101,6 +101,12 @@ void switchMain(switchState * sstate,linkArrayType * linkArray, char * filename)
 		// Check Each Available Link For New Elements
 		for(i = 0; i < linkcount; i++)
 		{
+			// Check for Root Address and Root Distance
+			if(linkArray->link[i].uniPipeInfo.physIdSrc <= switcount
+			&& linkArray->link[i].uniPipeInfo.physIdDst <= switcount) {
+				linkSend();
+			}
+
 			if(ConnectArray[i] == 0)
 			{
 				// If New Element Is Recieved, Store That Element In The Queue
@@ -172,10 +178,18 @@ void switchMain(switchState * sstate,linkArrayType * linkArray, char * filename)
 void switchInit(switchState * sstate, int physid) {
 	int j;
 	sstate->physid = physid;
-	sstate->netaddr = physid;
+	for(j = 0; j < NUMSWITCH; j++) {
+		sstate->netaddr[j].child = false;
+		sstate->netaddr[j].datalink = false;
+	}
+	sstate->rootaddr = physid;
 	sstate->rcvPacketBuff.valid = 0;
 	sstate->rcvPacketBuff.new = 0;
 	QInit(&sstate->packetqueue);
+
+	sstate->root = physid;
+	sstate->distance = 0;
+	sstate->parent = 0;
 }
 
 /*	Queue Functions		*/
