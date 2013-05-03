@@ -36,7 +36,7 @@ void switchMain(switchState * sstate,linkArrayType * linkArray, char * filename)
 	/* Variables */
 	char word[MAXBUFFER];
 	int  i, j, value, dstaddr, srcaddr;
-	char root[2], distance;
+	char root[2], distance[1], child[1];
 	int n, parent;
 	int addrArray[10001][3];
 	int ConnectArray[NUMLINKS];
@@ -114,7 +114,7 @@ void switchMain(switchState * sstate,linkArrayType * linkArray, char * filename)
 					root[0] = '0';
 					root[2] = '\0';
 				}
-				distance = sstate->distance; // If greater than 127, defaults to negative values
+				distance[0] = sstate->distance; // If greater than 127, defaults to negative values
 				for(n = 0; n < 6; n++) {
 					switch(n) {
 						case 0: word[n] = root[n];
@@ -123,7 +123,7 @@ void switchMain(switchState * sstate,linkArrayType * linkArray, char * filename)
 							break;
 						case 2: word[n] = ' ';
 							break;
-						case 3: word[n] = distance;
+						case 3: word[n] = distance[0];
 							break;
 						case 4: word[n] = ' ';
 							break;
@@ -132,13 +132,33 @@ void switchMain(switchState * sstate,linkArrayType * linkArray, char * filename)
 						default:word[n] = '\0';
 							break;
 					}
-					sstate->sendSwitchInfo.MiniPayload[n] = word[n];
+					sstate->sendSwitchInfo.payload[n] = word[n];
 				}
-				printf("%s\n", word);
 				linkSend(&(sstate->linkout), &(sstate->sendSwitchInfo));
 				for(n = 0; n < 200; n++) {
 					word[n] = '\0';
 					sstate->sendSwitchInfo.MiniPayload[n] = '\0';
+				}
+				if(linkReceiveS(&linkArray->link[i], &tmpbuff) > 0) {
+					if(sstate->rcvSwitchInfo.srcaddr >= 0) {
+					printf("%d RECEIVED PACKET FROM %d\n", sstate->physid, sstate->rcvSwitchInfo.srcaddr);
+					sstate->rcvSwitchInfo = tmpbuff;
+					findWord(root, sstate->rcvSwitchInfo.MiniPayload, 1);
+					printf("root = %d\n", atoi(root));
+					findWord(distance, sstate->rcvSwitchInfo.MiniPayload, 2);
+					printf("distance = %d\n", distance[0]);
+					findWord(child, sstate->rcvSwitchInfo.MiniPayload, 3);
+					printf("child = %s\n", child);
+					if(sstate->root > atoi(root)) {
+						sstate->root = atoi(root);
+						sstate->parent = sstate->rcvSwitchInfo.srcaddr;
+						sstate->distance = atoi(distance) + 1;
+					}
+					else if(atoi(distance) + 1 < sstate->distance) {
+						sstate->parent = sstate->rcvSwitchInfo.srcaddr;
+						sstate->distance = atoi(distance) + 1;
+					}
+					}
 				}
 			}
 
@@ -168,10 +188,29 @@ void switchMain(switchState * sstate,linkArrayType * linkArray, char * filename)
 						addrArray[tmpbuff.srcaddr][0] = 1;
 					}
 					} // End
+					/*
 					else {
-						
-							sstate->root = tmpbuff.srcaddr;
+						if(sstate->rcvSwitchInfo.srcaddr >= 0) {
+						printf("%d RECEIVED PACKET FROM %d\n", sstate->physid, sstate->rcvSwitchInfo.srcaddr);
+						sstate->rcvSwitchInfo = tmpbuff;
+						findWord(root, sstate->rcvSwitchInfo.MiniPayload, 1);
+						printf("root = %d\n", atoi(root));
+						findWord(distance, sstate->rcvSwitchInfo.MiniPayload, 2);
+						printf("distance = %d\n", distance[0]);
+						findWord(child, sstate->rcvSwitchInfo.MiniPayload, 3);
+						printf("child = %s\n", child);
+						if(sstate->root > atoi(root)) {
+							sstate->root = atoi(root);
+							sstate->parent = sstate->rcvSwitchInfo.srcaddr;
+							sstate->distance = atoi(distance) + 1;
+						}
+						else if(atoi(distance) + 1 < sstate->distance) {
+							sstate->parent = sstate->rcvSwitchInfo.srcaddr;
+							sstate->distance = atoi(distance) + 1;
+						}
+						}
 					}
+					*/
 				}
 			}
 		}
@@ -229,13 +268,15 @@ void switchInit(switchState * sstate, int physid) {
 		sstate->nbraddr[j].datalink = 0;
 	}
 	sstate->root = physid;
-	sstate->distance = 130;
+	sstate->distance = 0;
 	sstate->parent = 0;
 
 	sstate->sendSwitchInfo.srcaddr = physid;
 	sstate->sendSwitchInfo.length = 4;
 	sstate->rcvSwitchInfo.valid = 0;
 	sstate->rcvSwitchInfo.new = 0;
+
+	usleep(10 * TENMILLISEC);
 }
 
 /*	Queue Functions		*/

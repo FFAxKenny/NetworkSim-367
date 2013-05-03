@@ -209,7 +209,7 @@ int linkReceiveS(LinkInfo * link, packetBuffer * pbuff)
 			pbuff->new=1;
 			
 			for(i = 0; i < 200; i++) pbuff->MiniPayload[i] = buffer[i];
-			printf("MiniPayload:%s",pbuff->MiniPayload);
+//			printf("MiniPayload:%s",pbuff->MiniPayload);
 			return 1;
 		}
 		else
@@ -218,6 +218,7 @@ int linkReceiveS(LinkInfo * link, packetBuffer * pbuff)
 			pbuff->new=0;
 		}
 	}
+	//printf("Link %d received\n",link->linkID);
 
 	return n; /* Return length what was received on the link */ 
 }
@@ -233,5 +234,5 @@ int linkSend(LinkInfo * link, packetBuffer * pbuff)
 	}
 
 	/* Used for DEBUG -- trace packets being sent */
-//	printf("Link %d transmitted\n",link->linkID);
+	//printf("Link %d transmitted\n",link->linkID);
 }
