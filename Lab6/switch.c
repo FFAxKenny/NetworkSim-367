@@ -36,6 +36,8 @@ void switchMain(switchState * sstate,linkArrayType * linkArray, char * filename)
 	/* Variables */
 	char word[MAXBUFFER];
 	int  i, j, value, dstaddr, srcaddr;
+	char root[2], distance;
+	int n, parent;
 	int addrArray[10001][3];
 	int ConnectArray[NUMLINKS];
 	int num_in_con;
@@ -98,13 +100,46 @@ void switchMain(switchState * sstate,linkArrayType * linkArray, char * filename)
 	// Main Operating Loop
 	while(1)
 	{
-		// Check Each Available Link For New Elements
+		// Broadcast Switch Node State
 		for(i = 0; i < linkcount; i++)
 		{
 			// Check for Root Address and Root Distance
-			if(linkArray->link[i].uniPipeInfo.physIdSrc <= switcount
-			&& linkArray->link[i].uniPipeInfo.physIdDst <= switcount) {
-				linkSend();
+			if(linkArray->link[i].uniPipeInfo.physIdSrc < switcount
+			&& linkArray->link[i].uniPipeInfo.physIdDst < switcount) {
+				sstate->sendSwitchInfo.dstaddr
+				= linkArray->link[i].uniPipeInfo.physIdDst;
+				sprintf(root, "%d", sstate->root);
+				if(root[1] == '\0') {
+					root[1] = root[0];
+					root[0] = '0';
+					root[2] = '\0';
+				}
+				distance = sstate->distance; // If greater than 127, defaults to negative values
+				for(n = 0; n < 6; n++) {
+					switch(n) {
+						case 0: word[n] = root[n];
+							break;
+						case 1: word[n] = root[n];
+							break;
+						case 2: word[n] = ' ';
+							break;
+						case 3: word[n] = distance;
+							break;
+						case 4: word[n] = ' ';
+							break;
+						case 5: word[n] = '1';
+							break;
+						default:word[n] = '\0';
+							break;
+					}
+					sstate->sendSwitchInfo.MiniPayload[n] = word[n];
+				}
+				printf("%s\n", word);
+				linkSend(&(sstate->linkout), &(sstate->sendSwitchInfo));
+				for(n = 0; n < 200; n++) {
+					word[n] = '\0';
+					sstate->sendSwitchInfo.MiniPayload[n] = '\0';
+				}
 			}
 
 			if(ConnectArray[i] == 0)
@@ -112,9 +147,10 @@ void switchMain(switchState * sstate,linkArrayType * linkArray, char * filename)
 				// If New Element Is Recieved, Store That Element In The Queue
 				if(linkReceiveS(&linkArray->link[i], &tmpbuff) > 0)
 				{
-					printf("[[ Switch %d has recieved new element ]]\n",sstate->physid);
+					//printf("[[ Switch %d has recieved new element ]]\n",sstate->physid);
 					tmpbuff.rcvlink = linkArray->link[i].uniPipeInfo.physIdSrc;
-					QPush(&sstate->packetqueue, tmpbuff);
+					if(tmpbuff.srcaddr >= switcount) {
+						QPush(&sstate->packetqueue, tmpbuff);
 
 					if(tmpbuff.srcaddr != 1000)
 					{
@@ -130,6 +166,9 @@ void switchMain(switchState * sstate,linkArrayType * linkArray, char * filename)
 							}
 						}
 						addrArray[tmpbuff.srcaddr][0] = 1;
+					}
+					} // End
+					else {
 					}
 				}
 			}
@@ -178,18 +217,23 @@ void switchMain(switchState * sstate,linkArrayType * linkArray, char * filename)
 void switchInit(switchState * sstate, int physid) {
 	int j;
 	sstate->physid = physid;
-	for(j = 0; j < NUMSWITCH; j++) {
-		sstate->netaddr[j].child = false;
-		sstate->netaddr[j].datalink = false;
-	}
-	sstate->rootaddr = physid;
+	sstate->netaddr = physid;
 	sstate->rcvPacketBuff.valid = 0;
 	sstate->rcvPacketBuff.new = 0;
 	QInit(&sstate->packetqueue);
 
+	for(j = 0; j < NUMSWITCH; j++) {
+		sstate->nbraddr[j].child = 0;
+		sstate->nbraddr[j].datalink = 0;
+	}
 	sstate->root = physid;
-	sstate->distance = 0;
+	sstate->distance = 130;
 	sstate->parent = 0;
+
+	sstate->sendSwitchInfo.srcaddr = physid;
+	sstate->sendSwitchInfo.length = 4;
+	sstate->rcvSwitchInfo.valid = 0;
+	sstate->rcvSwitchInfo.new = 0;
 }
 
 /*	Queue Functions		*/

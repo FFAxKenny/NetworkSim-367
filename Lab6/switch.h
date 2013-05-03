@@ -10,6 +10,7 @@
  * 
  * 
  */
+#include <stdlib.h>
 
 #define NUMSWITCH 50
 
@@ -24,6 +25,23 @@ typedef struct {
 	PacketNode *QTail;
 	int QSize;
 } PacketQ;
+
+typedef struct {
+	int child;
+	int datalink;
+	} nbraddr;
+
+typedef struct { /* Packet buffer */
+   int srcaddr;  /* Source address */
+   int dstaddr;  /* Destination addres */
+   int length;   /* Length of packet */
+   int root;
+   int distance;
+   int child;
+   int valid;   /* Indicates if the contents is valid */ 
+   int new;     /* Indicates if the contents has been downloaded */
+   int rcvlink; /* Indicates the source of the last link the packet was sent through */
+} nodeStatePacket;
 
 typedef struct {
 	int   physid;
@@ -42,11 +60,6 @@ typedef struct {
 
 	PacketQ packetqueue;
 	} switchState;
-
-typedef struct {
-	bool child;
-	bool datalink;
-	} nbraddr;
 
 void switchMain(switchState * sstate,linkArrayType * linkArray, char * filename);
 void switchInit(switchState * sstate,int physid);
