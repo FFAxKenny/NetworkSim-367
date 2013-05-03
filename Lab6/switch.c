@@ -169,6 +169,8 @@ void switchMain(switchState * sstate,linkArrayType * linkArray, char * filename)
 					}
 					} // End
 					else {
+						
+							sstate->root = tmpbuff.srcaddr;
 					}
 				}
 			}

@@ -209,7 +209,7 @@ int linkReceiveS(LinkInfo * link, packetBuffer * pbuff)
 			pbuff->new=1;
 			
 			for(i = 0; i < 200; i++) pbuff->MiniPayload[i] = buffer[i];
-//			printf("MiniPayload:%s",pbuff->MiniPayload);
+			printf("MiniPayload:%s",pbuff->MiniPayload);
 			return 1;
 		}
 		else
